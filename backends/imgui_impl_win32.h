@@ -20,10 +20,55 @@
 #include "imgui.h"      // IMGUI_IMPL_API
 #ifndef IMGUI_DISABLE
 
+#include <vector>
+
+enum class DearImGuiIOEventType : int
+{
+    // 1x ImGuiMouseSource
+    SetMouseSourceEvent,
+    // 2x float
+    SetMousePosEvent,
+    // 1x int, 1x bool
+    MouseButtonEvent,
+    // 1x int, 1x float
+    MouseWheelEvent,
+    // 1x ImGuiKey, 1x bool
+    KeyEvent,
+    // 1x ImGuiKey, 2x int
+    KeyNativeDataEvent,
+    // 1x bool
+    FocusEvent,
+    // 1x uint16
+    InputCharacterUTF16,
+    // 1x uint16
+    InputCharacter,
+    // no data
+    SetWantUpdateHasGamepad,
+    // 1x int
+    SetMouseTrackedArea,
+};
+
+struct DearImGuiIOEvent
+{
+    union {
+        int PayloadInt0;
+        float PayloadFloat0;
+    };
+    union {
+        int PayloadInt1;
+        float PayloadFloat1;
+    };
+    union {
+        int PayloadInt2;
+        float PayloadFloat2;
+    };
+    DearImGuiIOEventType Type;
+};
+
 IMGUI_IMPL_API bool     ImGui_ImplWin32_Init(void* hwnd);
 IMGUI_IMPL_API bool     ImGui_ImplWin32_InitForOpenGL(void* hwnd);
 IMGUI_IMPL_API void     ImGui_ImplWin32_Shutdown();
-IMGUI_IMPL_API void     ImGui_ImplWin32_NewFrame();
+IMGUI_IMPL_API void     ImGui_ImplWin32_NewFrame(std::vector<DearImGuiIOEvent>& events);
 
 // Win32 message handler your application need to call.
 // - Intentionally commented out in a '#if 0' block to avoid dragging dependencies on <windows.h> from this helper.
@@ -31,7 +76,7 @@ IMGUI_IMPL_API void     ImGui_ImplWin32_NewFrame();
 // - Call from your application's message handler. Keep calling your message handler unless this function returns TRUE.
 
 #if 0
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, std::vector<DearImGuiIOEvent>& events);
 #endif
 
 // DPI-related helpers (optional)
